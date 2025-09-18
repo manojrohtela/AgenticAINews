@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+feedparser
+transformers
+reportlab
+python-dotenv
+httpx
+smtplib
+email-validator

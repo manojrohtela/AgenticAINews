@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic AI News Assistant</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+        h1 { text-align: center; color: #2c3e50; }
+        form { display: flex; gap: 8px; margin-bottom: 24px; }
+        input[type=text] { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+        button { padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .news-list { margin-top: 24px; }
+        .news-item { background: #f1f1f1; border-radius: 4px; padding: 16px; margin-bottom: 12px; }
+        .news-title { font-weight: bold; color: #007bff; }
+        .news-summary { margin: 8px 0; }
+        .news-link { font-size: 0.95em; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Agentic AI News Assistant</h1>
+        <form id="newsForm">
+            <input type="text" id="queryInput" placeholder="Ask for news, e.g. 'Show me sports news'" required />
+            <button type="submit">Get News</button>
+        </form>
+        <div id="newsResults" class="news-list"></div>
+    </div>
+    <script>
+        const form = document.getElementById('newsForm');
+        const input = document.getElementById('queryInput');
+        const results = document.getElementById('newsResults');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            results.innerHTML = '<em>Loading...</em>';
+            const query = input.value.trim();
+            try {
+                const res = await fetch('/news', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+                if (!res.ok) throw new Error('Failed to fetch news');
+                const data = await res.json();
+                if (data.summaries && data.summaries.length) {
+                    results.innerHTML = data.summaries.map(item => `
+                        <div class="news-item">
+                            <div class="news-title">${item.title}</div>
+                            <div class="news-summary">${item.summary}</div>
+                            <a class="news-link" href="${item.link}" target="_blank">Read more</a>
+                        </div>
+                    `).join('');
+                } else {
+                    results.innerHTML = '<em>No news found.</em>';
+                }
+            } catch (err) {
+                results.innerHTML = `<span style="color:red;">${err.message}</span>`;
+            }
+        });
+    </script>
+</body>
+</html>
